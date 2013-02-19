@@ -9,6 +9,13 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "Cloud", "Cloud\Cloud.ccproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Role", "Role\Role.csproj", "{F2629A8C-E797-405B-8D54-3F8A8FBAF2A9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7AE2D1A9-4527-4013-9F12-703132BB2818}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
