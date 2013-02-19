@@ -23,9 +23,9 @@
 				
 		<Message Text="Deleting published files not needed" Importance="High" />
 		<CreateItem Include="$(PublishDirectory)\**\packages.config">
-			<Output ItemName="FilesToDelete" TaskParameter="Include" />
+			<Output ItemName="PublishedFilesToDelete" TaskParameter="Include" />
 		</CreateItem>
-		<Delete Files="@(FilesToDelete)" />
+		<Delete Files="@(PublishedFilesToDelete)" />
 		
 		<Message Text="Publishing done!" Importance="High" />
 	</Target>
@@ -35,6 +35,10 @@
 	</Target>
 	<Target Name="Clean">
 		<Message Text="Cleaning publish directory" Importance="High" />
+		<CreateItem Include="$(PublishDirectory)\**\*">
+			<Output ItemName="CleanFilesToDelete" TaskParameter="Include" />
+		</CreateItem>
+		<Delete Files="@(CleanFilesToDelete" />
 		<RemoveDir Directories="$(PublishDirectory)" ContinueOnError="false"  />
 	</Target>
 </Project>
