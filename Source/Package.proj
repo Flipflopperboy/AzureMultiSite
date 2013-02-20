@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Publish" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<PublishDirectory>$(MSBuildThisFileDirectory)Published\</PublishDirectory>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectFiles Include="Web.Admin/Web.Admin.csproj" />
+		<ProjectFiles Include="Web.Public/Web.Public.csproj" />
+	</ItemGroup>
+	<Target Name="Publish" DependsOnTargets="VerifyProperties; Clean">
+		<Message Text="Publishing projects" Importance="High" />
+		<MSBuild Projects="%(ProjectFiles.FullPath)"
+		         Targets="Rebuild;"
+				 Properties="OutDir=$(PublishDirectory)%(ProjectFiles.FileName)\bin\;
+							 OutputPath=$(PublishDirectory)%(ProjectFiles.FileName)\;
+							 WebProjectOutputDir=$(PublishDirectory)%(ProjectFiles.FileName)\;
+							 UseWPP_CopyWebApplication=True;
+							 PipelineDependsOnBuild=False;
+							 Configuration=$(Configuration);
+							 Debug=$(Debug);
+							 MvcBuildViews=true"
+				ContinueOnError="false" />
+				
+		<Message Text="Deleting published files not needed" Importance="High" />
+		<CreateItem Include="$(PublishDirectory)\**\packages.config">
+			<Output ItemName="PublishedFilesToDelete" TaskParameter="Include" />
+		</CreateItem>
+		<Delete Files="@(PublishedFilesToDelete)" />
+		
+		<Message Text="Publishing done!" Importance="High" />
+	</Target>
+	<Target Name="VerifyProperties">
+		<Error Condition="'$(Configuration)' == ''" Text="No configuration specified" ContinueOnError="false"  />
+		<Error Condition="'$(Debug)' == ''"         Text="No debug flag specified"    ContinueOnError="false"  />
+	</Target>
+	<Target Name="Clean">
+		<Message Text="Cleaning publish directory" Importance="High" />
+		<CreateItem Include="$(PublishDirectory)\**\*">
+			<Output ItemName="CleanFilesToDelete" TaskParameter="Include" />
+		</CreateItem>
+		<Delete Files="@(CleanFilesToDelete" />
+		<RemoveDir Directories="$(PublishDirectory)" ContinueOnError="false"  />
+	</Target>
+</Project>

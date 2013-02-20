@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
 	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Configuration Condition=" '$(Configuration)' == '' ">Local</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 		<ProductVersion>1.8</ProductVersion>
 		<ProjectGuid>cf8ec9f6-c8e1-404f-9d3d-3fd9b6cd7acc</ProjectGuid>
@@ -13,26 +13,33 @@
 		<StartDevelopmentStorage>True</StartDevelopmentStorage>
 		<Name>Cloud</Name>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Local|AnyCPU' ">
+		<PublishWebUsingDebug>true</PublishWebUsingDebug>
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>full</DebugType>
 		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
+		<OutputPath>bin\Local\</OutputPath>
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Cloud|AnyCPU' ">
+		<PublishWebUsingDebug>false</PublishWebUsingDebug>
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
+		<OutputPath>bin\Cloud\</OutputPath>
 		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<!-- Items for the project -->
 	<ItemGroup>
-		<ServiceDefinition Include="ServiceDefinition.csdef" />
+		<ServiceDefinition Include="ServiceDefinition.Generated.csdef" />
+		<ServiceDefinitionByEnvironment Include="ServiceDefinition.Local.csdef" />
+		<ServiceDefinitionByEnvironment Include="ServiceDefinition.Cloud.csdef" />
+		<None Include="@(ServiceDefinitionByEnvironment)" />
+	</ItemGroup>
+	<ItemGroup>
 		<ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
 		<ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
 	</ItemGroup>
@@ -52,15 +59,12 @@
 		<CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\1.8\</CloudExtensionsDir>
 	</PropertyGroup>
 	<Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
-<!--	<PropertyGroup>
-		<PreBuildEvent>
-		</PreBuildEvent>
-	</PropertyGroup>
-	-->
 	<Target Name="PreBuildEvent">
-			<MSBuild 
-				Projects="$(MSBuildThisFileDirectory)..\Publish.proj" 
-				Targets="Publish" 
-				Properties="Configuration=$(Configuration);Debug=true" />
+		<Message Text="Replacing ServiceDefinition with ServiceDefinition.$(Configuration).csdef" Importance="High" />
+		<!--<Copy SourceFiles="ServiceDefinition.$(Configuration).csdef" DestinationFiles="ServiceDefinition.Generated.csdef" />-->
+		<MSBuild 
+			Projects="$(MSBuildThisFileDirectory)..\Publish.proj" 
+			Targets="Publish" 
+			Properties="Configuration=$(Configuration);Debug=$(PublishWebUsingDebug)" />
 	</Target>
 </Project>

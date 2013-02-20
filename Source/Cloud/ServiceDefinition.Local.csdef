@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="Cloud" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-10.1.8">
+	<WebRole name="Role" vmsize="ExtraSmall">
+		<Sites>
+			<Site name="Web.Admin" physicalDirectory="..\..\..\Published\Web.Admin">
+				<Bindings>
+					<Binding name="HttpInputEndpoint" endpointName="HttpInputEndpoint1" />
+					<!-- hostHeader="admin"-->
+				</Bindings>
+			</Site>
+			<Site name="Web.Public" physicalDirectory="..\..\..\Published\Web.Public">
+				<Bindings>
+					<Binding name="HttpInputEndpoint" endpointName="HttpInputEndpoint2" />
+					<!--hostHeader="public"-->
+				</Bindings>
+			</Site>
+		</Sites>
+		<Endpoints>
+			<InputEndpoint name="HttpInputEndpoint1"  protocol="http" port="81" />
+			<InputEndpoint name="HttpInputEndpoint2" protocol="http" port="82" />
+		</Endpoints>
+		<Imports>
+			<Import moduleName="Diagnostics" />
+		</Imports>
+	</WebRole>
+</ServiceDefinition>
