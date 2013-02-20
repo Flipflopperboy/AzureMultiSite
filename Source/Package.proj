@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Publish" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Package" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<PublishDirectory>$(MSBuildThisFileDirectory)Published\</PublishDirectory>
 	</PropertyGroup>
@@ -20,13 +20,14 @@
 							 Debug=$(Debug);
 							 MvcBuildViews=true"
 				ContinueOnError="false" />
-				
+
+<!--				
 		<Message Text="Deleting published files not needed" Importance="High" />
 		<CreateItem Include="$(PublishDirectory)\**\packages.config">
 			<Output ItemName="PublishedFilesToDelete" TaskParameter="Include" />
 		</CreateItem>
 		<Delete Files="@(PublishedFilesToDelete)" />
-		
+-->		
 		<Message Text="Publishing done!" Importance="High" />
 	</Target>
 	<Target Name="VerifyProperties">

@@ -1,6 +1,9 @@
+Verify RoleEnvironment stuffs
+Run from Role or stand-alone
+
+
+
+2013-02-20
 Different service definition files for different environments?
 - local: switch by ports
 - cloud: switch by host headers
-
-Verify RoleEnvironment stuffs
-Run from Role or stand-alone

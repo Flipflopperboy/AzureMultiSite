@@ -60,8 +60,8 @@
 	</PropertyGroup>
 	<Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
 	<Target Name="PreBuildEvent">
-		<Message Text="Replacing ServiceDefinition with ServiceDefinition.$(Configuration).csdef" Importance="High" />
-		<!--<Copy SourceFiles="ServiceDefinition.$(Configuration).csdef" DestinationFiles="ServiceDefinition.Generated.csdef" />-->
+		<Message Text="Replacing ServiceDefinition.Generated.csdef with ServiceDefinition.$(Configuration).csdef" Importance="High" />
+		<Copy SourceFiles="ServiceDefinition.$(Configuration).csdef" DestinationFiles="ServiceDefinition.Generated.csdef" />
 		<MSBuild 
 			Projects="$(MSBuildThisFileDirectory)..\Publish.proj" 
 			Targets="Publish" 
