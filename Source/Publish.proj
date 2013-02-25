@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+	<PropertyGroup>
+		<CleanDependsOn>
+			$(CleanDependsOn);
+			CleanPublished;
+		</CleanDependsOn>
+	</PropertyGroup>
+
 	<Target Name="PreBuildEvent" DependsOnTargets="SetTargetProfileToSameAsConfiguration;SwapDefinitionFiles;Publish">
 	</Target>
-<!--
--->
-<!--		<MSBuild 
-			Projects="$(MSBuildThisFileDirectory)..\Publish.proj" 
-			Targets="Publish" 
-			Properties="Configuration=$(Configuration);Debug=$(PublishWebUsingDebug)" />
--->
 
 	<Target Name="SetTargetProfileToSameAsConfiguration">
 		<CreateProperty Value="$(Configuration)">
@@ -23,6 +23,7 @@
 	</Target>
 	
 	<Target Name="Publish">
+		<!--Using MSBuild task directly (as below) doesn't work from Visual Studio for some reason -->
 		<Exec Command="$(MSBuildThisFileDirectory)Publish.cmd"  />
 <!--
 		<Message Text="Publishing web projects in configuration $(Configuration)" Importance="High" />
@@ -35,5 +36,17 @@
 			Targets="Build"
 			Properties="Configuration=$(Configuration);DeployOnBuild=true;PublishProfile=Publish.Web.Public.pubxml;VisualStudioVersion=11.0" />
 -->
+	</Target>
+	
+	<Target Name="CleanPublished">
+		<CreateItem Include="$(MSBuildThisFileDirectory)Published\**\*">
+			<Output 
+				TaskParameter="Include" 
+				ItemName="PublishedFilesToDelete" />
+		</CreateItem>
+		<Delete 
+			Files="@PublishedFilesToDelete" 
+			TreatErrorsAsWarnings="false" />
+		<RemoveDir Directories="$(MSBuildThisFileDirectory)Published" />
 	</Target>
 </Project>
