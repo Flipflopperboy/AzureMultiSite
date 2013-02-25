@@ -14,8 +14,8 @@ namespace Web
 		public static string GetLocalStoragePath(string name)
 		{
 			return RoleEnvironment.IsAvailable
-					   ? RoleEnvironment.GetLocalResource(name).RootPath
-					   : "nan";
+					   ? RoleEnvironment.GetLocalResource(name).RootPath :
+					   "nan";
 		}
 	}
 }

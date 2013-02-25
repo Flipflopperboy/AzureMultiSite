@@ -59,12 +59,5 @@
 		<CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\1.8\</CloudExtensionsDir>
 	</PropertyGroup>
 	<Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
-	<Target Name="PreBuildEvent">
-		<Message Text="Replacing ServiceDefinition.Generated.csdef with ServiceDefinition.$(Configuration).csdef" Importance="High" />
-		<Copy SourceFiles="ServiceDefinition.$(Configuration).csdef" DestinationFiles="ServiceDefinition.Generated.csdef" />
-		<MSBuild 
-			Projects="$(MSBuildThisFileDirectory)..\Publish.proj" 
-			Targets="Publish" 
-			Properties="Configuration=$(Configuration);Debug=$(PublishWebUsingDebug)" />
-	</Target>
+	<Import Project="$(MSBuildThisFileDirectory)..\Publish.proj" />
 </Project>

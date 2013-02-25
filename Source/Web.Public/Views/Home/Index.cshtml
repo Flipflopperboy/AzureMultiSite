@@ -1,7 +1,10 @@
-﻿@{
-    ViewBag.Title = "Public";
+﻿@model Web.Models.HomeIndexViewModel
+@{
+	ViewBag.Title = "Public";
 }
 
 <h2>Public</h2>
 <ol>
+	<li>Local Resource Path: @Model.LocalResourcePath</li>
+	<li>Setting value: @Model.SettingValue</li>
 </ol>

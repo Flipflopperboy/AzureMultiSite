@@ -1,5 +1,10 @@
-﻿@{
+﻿@model Web.Models.HomeIndexViewModel
+@{
 	ViewBag.Title = "Admin";
 }
 
 <h2>Admin</h2>
+<ol>
+	<li>Local Resource Path: @Model.LocalResourcePath</li>
+	<li>Setting value: @Model.SettingValue</li>
+</ol>

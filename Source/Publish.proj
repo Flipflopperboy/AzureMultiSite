@@ -1,44 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Publish" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<PublishDirectory>$(MSBuildThisFileDirectory)Published\</PublishDirectory>
-	</PropertyGroup>
-	<ItemGroup>
-		<ProjectFiles Include="Web.Admin/Web.Admin.csproj" />
-		<ProjectFiles Include="Web.Public/Web.Public.csproj" />
-	</ItemGroup>
-	<Target Name="Publish" DependsOnTargets="VerifyProperties; Clean">
-		<Message Text="Publishing projects" Importance="High" />
-		<MSBuild Projects="%(ProjectFiles.FullPath)"
-		         Targets="Rebuild;"
-				 Properties="OutDir=$(PublishDirectory)%(ProjectFiles.FileName)\bin\;
-							 OutputPath=$(PublishDirectory)%(ProjectFiles.FileName)\;
-							 WebProjectOutputDir=$(PublishDirectory)%(ProjectFiles.FileName)\;
-							 UseWPP_CopyWebApplication=True;
-							 PipelineDependsOnBuild=False;
-							 Configuration=$(Configuration);
-							 Debug=$(Debug);
-							 MvcBuildViews=true"
-				ContinueOnError="false" />
-				
-		<Message Text="Deleting published files not needed" Importance="High" />
-		<CreateItem Include="$(PublishDirectory)\**\packages.config">
-			<Output ItemName="PublishedFilesToDelete" TaskParameter="Include" />
-		</CreateItem>
-		<Delete Files="@(PublishedFilesToDelete)" />
-		
-		<Message Text="Publishing done!" Importance="High" />
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<Target Name="PreBuildEvent" DependsOnTargets="SetTargetProfileToSameAsConfiguration;SwapDefinitionFiles;Publish">
 	</Target>
-	<Target Name="VerifyProperties">
-		<Error Condition="'$(Configuration)' == ''" Text="No configuration specified" ContinueOnError="false"  />
-		<Error Condition="'$(Debug)' == ''"         Text="No debug flag specified"    ContinueOnError="false"  />
+<!--
+-->
+<!--		<MSBuild 
+			Projects="$(MSBuildThisFileDirectory)..\Publish.proj" 
+			Targets="Publish" 
+			Properties="Configuration=$(Configuration);Debug=$(PublishWebUsingDebug)" />
+-->
+
+	<Target Name="SetTargetProfileToSameAsConfiguration">
+		<CreateProperty Value="$(Configuration)">
+			<Output TaskParameter="Value" PropertyName="TargetProfile"/>
+		</CreateProperty>
 	</Target>
-	<Target Name="Clean">
-		<Message Text="Cleaning publish directory" Importance="High" />
-		<CreateItem Include="$(PublishDirectory)\**\*">
-			<Output ItemName="CleanFilesToDelete" TaskParameter="Include" />
-		</CreateItem>
-		<Delete Files="@(CleanFilesToDelete" />
-		<RemoveDir Directories="$(PublishDirectory)" ContinueOnError="false"  />
+
+	<Target Name="SwapDefinitionFiles">
+		<Message Text="Replacing ServiceDefinition.Generated.csdef with ServiceDefinition.$(Configuration).csdef" Importance="High" />
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)Cloud\ServiceDefinition.$(Configuration).csdef" DestinationFiles="$(MSBuildThisFileDirectory)Cloud\ServiceDefinition.Generated.csdef" />
+	</Target>
+	
+	<Target Name="Publish">
+		<Exec Command="$(MSBuildThisFileDirectory)Publish.cmd"  />
+<!--
+		<Message Text="Publishing web projects in configuration $(Configuration)" Importance="High" />
+		<MSBuild 
+			Projects="$(MSBuildThisFileDirectory)Web.Admin\Web.Admin.csproj"
+			Targets="Build"
+			Properties="Configuration=$(Configuration);DeployOnBuild=true;PublishProfile=Publish.Web.Admin.pubxml;VisualStudioVersion=11.0" />
+		<MSBuild 
+			Projects="$(MSBuildThisFileDirectory)Web.Public\Web.Public.csproj" 
+			Targets="Build"
+			Properties="Configuration=$(Configuration);DeployOnBuild=true;PublishProfile=Publish.Web.Public.pubxml;VisualStudioVersion=11.0" />
+-->
 	</Target>
 </Project>
