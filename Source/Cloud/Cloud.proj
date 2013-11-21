@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<PublishDirectory>$(MSBuildThisFileDirectory)Published\</PublishDirectory>
+		<PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+		<BuildDirectory>$(MSBuildThisFileDirectory)..\Build\</BuildDirectory>
+		<DeploymentPowerShellScriptFile>$(BuildDirectory)$(Configuration).Deploy.ps1</DeploymentPowerShellScriptFile>
+		<PackageFile>$(MSBuildProjectDirectory)\$(PublishDir)Cloud.cspkg</PackageFile>
+		<ServiceConfigurationFile>$(MSBuildProjectDirectory)\$(PublishDir)ServiceConfiguration.$(Configuration).cscfg</ServiceConfigurationFile>
+		<GeneratedServiceDefinitionFileName>ServiceDefinition.generated.csdef</GeneratedServiceDefinitionFileName>
+	</PropertyGroup>
+
+	<!-- Add targets to pre-build process -->
+	<Target Name="BeforeBuild" DependsOnTargets="SetTargetProfileToSameAsConfiguration; 
+												 SwapDefinitionFiles;
+												 PublishWebApplications">
+	</Target>
+
+	<!-- Adds targets to clean process -->
+	<Target Name="AfterClean" DependsOnTargets="CleanPublishDirectory">
+	</Target>
+
+	<!-- Invoke powershell script to publish cloud project -->
+	<Target Name="PublishToAzure" DependsOnTargets="VerifyPublishArguments;Publish">
+		<Message Text="Publishing to Azure using configuration $(configuration)" Importance="High" />
+
+		<Exec WorkingDirectory="$(BuildDirectory)"
+			  Command="&quot;$(PowerShellExe)&quot; –NonInteractive –ExecutionPolicy Unrestricted -File &quot;$(DeploymentPowerShellScriptFile)&quot; &quot;$(PackageFile)&quot; &quot;$(ServiceConfigurationFile)&quot;">
+			<Output PropertyName="PowerShellExitCode" TaskParameter="ExitCode"/>
+		</Exec>
+		<Error Text="Powershell script exited with code $(PowerShellExitCode)" Condition="$(PowerShellExitCode) != 0" />
+	</Target>
+
+	<Target Name="VerifyPublishArguments">
+		<Error Text="Must specify Configuration" Condition="'$(Configuration)' == ''" />
+	</Target>
+
+	<Target Name="PublishWebApplications">
+		<ConvertToAbsolutePath Paths="$(OutDir)">
+			<Output TaskParameter="AbsolutePaths" PropertyName="AbsoluteOutDir"/>
+		</ConvertToAbsolutePath>
+		<Message Text="Publishing web applications to $(AbsoluteOutDir)"
+				 Importance="high" />
+		<!-- Hack to make publishing work, doing this as a MSBuild task didn't work for some reason -->
+		<Exec Command="&quot;$(MSBuildThisFileDirectory)PublishWebApplications.cmd&quot; $(Configuration) &quot;$(AbsoluteOutDir)Published&quot;" />
+	</Target>
+	
+	<Target Name="SwapDefinitionFiles">
+		<Message Text="Overwriting $(GeneratedServiceDefinitionFileName) with ServiceDefinition.$(Configuration).csdef"
+		         Importance="High" />
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)ServiceDefinition.$(Configuration).csdef"
+			  DestinationFiles="$(MSBuildThisFileDirectory)$(GeneratedServiceDefinitionFileName)"
+			  SkipUnchangedFiles="true"
+			  ContinueOnError="false"
+			  OverwriteReadOnlyFiles="true" />
+	</Target>
+
+	<Target Name="SetTargetProfileToSameAsConfiguration">
+		<Message Text="Setting TargetProfile to $(Configuration)"
+		         Importance="High" />
+
+		<CreateProperty Value="$(Configuration)">
+			<Output PropertyName="TargetProfile"
+			        TaskParameter="Value" />
+		</CreateProperty>
+	</Target>
+
+	<Target Name="CleanPublishDirectory">
+		<Message Text="Cleaning publish directory"
+		         Importance="High" />
+
+		<CreateItem Include="$(PublishDirectory)**\*">
+			<Output ItemName="PublishedFilesToDelete"
+			        TaskParameter="Include" />
+		</CreateItem>
+
+		<Delete Files="@(PublishedFilesToDelete)" />
+		<RemoveDir Directories="$(PublishDirectory)"
+		           ContinueOnError="true"  />
+	</Target>
+</Project>
