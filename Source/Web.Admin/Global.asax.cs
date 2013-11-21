@@ -1,24 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Autofac;
+using Autofac.Integration.Mvc;
+using AzureMultiSite.Azure.Setup;
+using AzureMultiSite.Web.Admin.App_Start;
 
-namespace Web.Admin
+namespace AzureMultiSite.Web.Admin
 {
-	// Note: For instructions on enabling IIS6 or IIS7 classic mode, 
-	// visit http://go.microsoft.com/?LinkId=9394801
-	public class MvcApplication : System.Web.HttpApplication
-	{
-		protected void Application_Start()
-		{
-			AreaRegistration.RegisterAllAreas();
+    public class MvcApplication : HttpApplication
+    {
+        protected void Application_Start()
+        {
+            ViewEngines.Engines.Clear(); //To remove crappy aspx engine
+            ViewEngines.Engines.Add(new RazorViewEngine());
 
-			WebApiConfig.Register(GlobalConfiguration.Configuration);
-			FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-			RouteConfig.RegisterRoutes(RouteTable.Routes);
-		}
-	}
+            IContainer container = CreateContainer();
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
+            AreaRegistration.RegisterAllAreas();
+
+            WebApiConfig.Register(GlobalConfiguration.Configuration);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+        }
+
+        private static IContainer CreateContainer()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterControllers(typeof (MvcApplication).Assembly);
+            builder.RegisterModelBinders(Assembly.GetExecutingAssembly());
+            builder.RegisterModelBinderProvider();
+            builder.RegisterFilterProvider();
+            builder.RegisterModule<AzureModule>();
+            return builder.Build();
+        }
+    }
 }
