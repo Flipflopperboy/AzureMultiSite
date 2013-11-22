@@ -10,24 +10,17 @@ namespace AzureMultiSite.Azure.ServiceRuntime
     {
         public AzureRoleEnvironment()
         {
-            if (RoleEnvironment.IsAvailable)
-            {
-                RoleEnvironment.Changed += RoleEnvironmentOnChanged;
-            }
+            RoleEnvironment.Changed += RoleEnvironmentOnChanged;
         }
 
         public string GetSettingValue(string name)
         {
-            return RoleEnvironment.IsAvailable
-                       ? RoleEnvironment.GetConfigurationSettingValue(name)
-                       : "tbd";
+            return RoleEnvironment.GetConfigurationSettingValue(name);
         }
 
         public string GetLocalStoragePath(string name)
         {
-            return RoleEnvironment.IsAvailable
-                       ? RoleEnvironment.GetLocalResource(name).RootPath
-                       : "tbd";
+            return RoleEnvironment.GetLocalResource(name).RootPath;
         }
 
         public event EventHandler<EnvironmentConfigurationSettingChangeArgs> SettingsChanged;

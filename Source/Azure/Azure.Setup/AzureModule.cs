@@ -9,7 +9,16 @@ namespace AzureMultiSite.Azure.Setup
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<AzureRoleEnvironment>()
+                .RegisterType<AzureRoleEnvironmentFactory>()
+                .As<IEnvironmentFactory>()
+                .SingleInstance();
+
+            builder
+                .Register(context =>
+                              {
+                                  var factory = context.Resolve<IEnvironmentFactory>();
+                                  return factory.CreateEnvironment();
+                              })
                 .As<IEnvironment>()
                 .SingleInstance();
         }
